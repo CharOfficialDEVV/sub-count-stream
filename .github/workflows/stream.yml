@@ -1,0 +1,18 @@
+name: Sub Stream
+on:
+  workflow_dispatch:
+
+jobs:
+  run-stream:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Streamer
+        run: sudo apt update && sudo apt install -y ffmpeg xvfb chromium-browser
+      
+      - name: Start Live
+        run: |
+          Xvfb :99 -screen 0 1280x720x24 &
+          export DISPLAY=:99
+          chromium-browser --no-sandbox --window-size=1280,720 --app="https://socialcounts.org/youtube-live-subscriber-count/UCuVDdo8St9REe8waEG8RVkAD" &
+          sleep 10
+          ffmpeg -f x11grab -video_size 1280x720 -i :99 -c:v libx264 -preset veryfast -b:v 2500k -f flv "rtmp://a.rtmp.youtube.com/live2/${{ secrets.STREAM_KEY }}"
