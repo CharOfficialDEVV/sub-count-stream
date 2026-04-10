@@ -1,4 +1,4 @@
-name: Sub Stream
+name: Sub Stream V2
 on:
   workflow_dispatch:
 
@@ -7,12 +7,29 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Install Streamer
-        run: sudo apt update && sudo apt install -y ffmpeg xvfb chromium-browser
-      
-      - name: Start Live
         run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg xvfb chromium-browser
+
+      - name: Start Stream
+        run: |
+          # 1. Create a virtual screen
           Xvfb :99 -screen 0 1280x720x24 &
           export DISPLAY=:99
-          chromium-browser --no-sandbox --window-size=1280,720 --app="https://socialcounts.org/youtube-live-subscriber-count/UCuVDdo8St9REe8waEG8RVkAD" &
-          sleep 10
-          ffmpeg -f x11grab -video_size 1280x720 -i :99 -c:v libx264 -preset veryfast -b:v 2500k -f flv "rtmp://a.rtmp.youtube.com/live2/${{ secrets.STREAM_KEY }}"
+          sleep 3
+
+          # 2. Open the Browser (REPLACE YOUR_CHANNEL_ID BELOW)
+          chromium-browser \
+            --no-sandbox \
+            --disable-setuid-sandbox \
+            --window-size=1280,720 \
+            --force-device-scale-factor=1 \
+            --app="https://socialcounts.org/youtube-live-subscriber-count/UCuVDdo8St9REe8waEG8RVkA" &
+          
+          sleep 15 # Give the website time to load
+
+          # 3. Blast the video to YouTube
+          ffmpeg -f x11grab -video_size 1280x720 -framerate 30 -i :99 \
+            -c:v libx264 -preset veryfast -pix_fmt yuv420p -g 60 \
+            -b:v 3000k -maxrate 3000k -bufsize 6000k \
+            -f flv "rtmp://a.rtmp.youtube.com/live2/${{ secrets.STREAM_KEY }}"
