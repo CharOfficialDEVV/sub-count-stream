@@ -16,7 +16,7 @@ jobs:
           sleep 5
           
           # Change YOUR_CHANNEL_ID below
-          chromium-browser --no-sandbox --window-size=1280,720 --app="https://socialcounts.org/youtube-live-subscriber-count/YOUR_CHANNEL_ID" &
+          chromium-browser --no-sandbox --window-size=1280,720 --app="https://socialcounts.org/youtube-live-subscriber-count/UCuVDdo8St9REe8waEG8RVkA" &
           sleep 20
 
           # This is the most standard YouTube RTMP link
