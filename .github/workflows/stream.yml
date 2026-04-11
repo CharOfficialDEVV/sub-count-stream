@@ -19,7 +19,7 @@ jobs:
           chromium-browser --no-sandbox --window-size=1280,720 --app="https://socialcounts.org/youtube-live-subscriber-count/UCuVDdo8St9REe8waEG8RVkA" &
           sleep 20
 
-          # This is the most standard YouTube RTMP link
+          # Safe format: 720p, 30fps, standard bitrate
           ffmpeg -f x11grab -video_size 1280x720 -framerate 30 -i :99 \
-            -c:v libx264 -preset veryfast -pix_fmt yuv420p -g 60 -b:v 2500k \
+            -vcodec libx264 -pix_fmt yuv420p -preset superfast -g 60 -b:v 2500k \
             -f flv "rtmp://a.rtmp.youtube.com/live2/${{ secrets.STREAM_KEY }}"
