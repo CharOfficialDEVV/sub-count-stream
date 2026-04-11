@@ -6,29 +6,20 @@ jobs:
   run-stream:
     runs-on: ubuntu-latest
     steps:
-      - name: Setup Environment
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y ffmpeg xvfb chromium-browser
+      - name: Setup
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg xvfb chromium-browser
 
-      - name: Launch Stream
+      - name: Launch
         run: |
-          # 1. Start the virtual display
           Xvfb :99 -screen 0 1280x720x24 &
           export DISPLAY=:99
           sleep 5
-
-          # 2. Open the browser with a "Real Person" identity
-          chromium-browser \
-            --no-sandbox \
-            --disable-dev-shm-usage \
-            --window-size=1280,720 \
-            --user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36" \
-            --app="https://socialcounts.org/youtube-live-subscriber-count/YOUR_CHANNEL_ID" &
           
-          sleep 20 # Give it a long time to load the numbers
+          # Change YOUR_CHANNEL_ID below
+          chromium-browser --no-sandbox --window-size=1280,720 --app="https://socialcounts.org/youtube-live-subscriber-count/YOUR_CHANNEL_ID" &
+          sleep 20
 
-          # 3. Stream to YouTube
+          # This is the most standard YouTube RTMP link
           ffmpeg -f x11grab -video_size 1280x720 -framerate 30 -i :99 \
-            -c:v libx264 -preset veryfast -pix_fmt yuv420p -g 60 \
-            -b:v 2500k -f flv "rtmp://a.rtmp.youtube.com/live2/${{ secrets.STREAM_KEY }}"
+            -c:v libx264 -preset veryfast -pix_fmt yuv420p -g 60 -b:v 2500k \
+            -f flv "rtmp://a.rtmp.youtube.com/live2/${{ secrets.STREAM_KEY }}"
